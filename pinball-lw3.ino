@@ -74,18 +74,17 @@ void setup() {
 	pinMode(30, OUTPUT); // Port B7 for control wave output
 
 	// register ball store for 3 switches
-	switchScanner.registerSwitchAction(1,4, &ballStore, PERIODIC);
-	switchScanner.registerSwitchAction(1,3, &ballStore, PERIODIC);
-	switchScanner.registerSwitchAction(1,2, &ballStore, PERIODIC);
+	switchScanner.registerSwitchAction(1, 4, &ballStore, PERIODIC);
+	switchScanner.registerSwitchAction(1, 3, &ballStore, PERIODIC);
+	switchScanner.registerSwitchAction(1, 2, &ballStore, PERIODIC);
+    switchScanner.registerSwitchAction(4, 5, &slingRight, EDGE);
+    switchScanner.registerSwitchAction(3, 5, &slingLeft, EDGE);
 
 	ledDriver.registerEffect(&attract);
 	ledDriver.registerEffect(&normalPlay);
 	ledDriver.registerEffect(&multiBallPlay);
 	ledDriver.registerEffect(&slingLeftFlash);
 	ledDriver.registerEffect(&slingRightFlash);
-
-	switchScanner.registerSwitchAction(4,5,&slingRight, EDGE);
-	switchScanner.registerSwitchAction(3,5,&slingLeft, EDGE);
 
 	// this is active by default
 	attract.active = true;

@@ -14,11 +14,16 @@ SwitchScanner::SwitchScanner(uint32_t delay) {
 	switchChanged = false;
 	colChanged = false;
 	col = 0;
-	rowIndex=0;
+	rowIndex = 0;
 	handlerIndex = 0;
 	led = false;
-	this->delay =delay;
+	this->delay = delay;
 	nextPeriodic = 0L;
+	for (int i = 0; i < 2; i++) {
+        for (int k = 0; k < 2; k++) {
+            rows[i][k] = LOW;
+        }
+	}
 }
 
 void SwitchScanner::registerSwitchAction(int col, int row, SwitchAction* action, Trigger t /* = EDGE*/) {
@@ -50,13 +55,15 @@ void SwitchScanner::readSwitches() {
 	}
 
 	// we read col 0 to 6
-	if (++col == LAST_COL_TO_READ) {
+	if (++col >= LAST_COL_TO_READ) {
 		col = 0;
 		Timer1.stop();
 		// update from with (or at end) of interrupt
 		FastLED.show();
 		rowIndex = row;
-		if( colChanged ) switchChanged =true;
+		if( colChanged ) {
+		    switchChanged = true;
+		}
 		colChanged = false;
 	}
 }
@@ -78,16 +85,16 @@ void SwitchScanner::update(uint32_t now) {
 	}
 
 	if (switchChanged) {
-		int nrow = rowIndex == 1 ? 0 : 1;
+		int row = rowIndex==1?0:1;
 		// scan handlers
 		for (int h = 0; h < handlerIndex; h++) {
 			if (handlers[h].trigger == EDGE) {
 //				Serial.println("edge handler found");
 				int col = handlers[h].col;
-				if ((rows[nrow][col] & handlers[h].rowMask)
+				if ((rows[row][col] & handlers[h].rowMask)
 						!= (rows[rowIndex][col] & handlers[h].rowMask)) {
 					Serial.print("handler fired col="); Serial.println(col);
-					bool active = (rows[rowIndex][col] & handlers[h].rowMask) == LOW;
+					bool active = (rows[row][col] & handlers[h].rowMask) == LOW;
 					handlers[h].action->onSwitchUpdate(!active,handlers[h].col*100+handlers[h].row);
 				}
 			}
@@ -108,7 +115,7 @@ void SwitchScanner::dump() {
 	Serial.println("  7 6 5 4 3 2 1 0");
 	for (int col = 0; col < LAST_COL_TO_READ; col++) {
 		Serial.print(col);
-		printbin(rows[rowIndex][col]);
+		printbin(rows[rowIndex==1?0:1][col]);
 	}
 }
 
